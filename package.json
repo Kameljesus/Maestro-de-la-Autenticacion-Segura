@@ -1,0 +1,29 @@
+{
+  "name": "maestro-de-la-autenticacion-segura",
+  "version": "1.0.0",
+  "description": "Challenge 8 de The Huddle",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Kameljesus/Maestro-de-la-Autenticacion-Segura.git"
+  },
+  "author": "Jesus Kamel",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Kameljesus/Maestro-de-la-Autenticacion-Segura/issues"
+  },
+  "homepage": "https://github.com/Kameljesus/Maestro-de-la-Autenticacion-Segura#readme",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
+    "ejs": "^3.1.10",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "sqlite3": "^5.1.7"
+  }
+}
