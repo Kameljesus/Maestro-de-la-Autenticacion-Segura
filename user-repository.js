@@ -1,7 +1,11 @@
 // user_repository.js
 
+// Importaciones:
 
-
+import crypto from 'node:crypto'
+import bcrypt from 'bcrypt'
+import db from './model/db.js'
+import { SALT_ROUNDS } from './config.js'
 
 class Validation {
   static username (username) {
@@ -21,18 +25,43 @@ class Validation {
 
 
 export class UserRepository {
-  static async create ({ username, password }) {
-
-    // 1. Validaciones de username y password:
+  static async create({ username, password }) {
+    // 1. Validaciones
     Validation.username(username)
     Validation.password(password)
 
-    // 2. Asegurarse de que el username NO existe:
-     = User.findOne({ username })
-    if (username) { 
-      throw new Error('username already exists')}
-    
-    // 3. Crea un id aleatorio:
+    // 2. Obtener todos los usernames de la base
+    const query = 'SELECT username FROM users'
+    const users = await new Promise((resolve, reject) => {
+      db.all(query, (err, rows) => {
+        if (err) reject(err)
+        else resolve(rows)
+      })
+    })
+
+    // 3. Recorrer con for para buscar coincidencias
+    for (const user of users) {
+      if (user.username === username) {
+        throw new Error('username already exists')
+      }
+    }
+
+    // 4. Si llegamos acá, el username es nuevo
     const id = crypto.randomUUID()
+    const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS)
+
+    // 5. Insertar el nuevo usuario
+    await new Promise((resolve, reject) => {
+      db.run(
+        'INSERT INTO users (id, username, password) VALUES (?, ?, ?)',
+        [id, username, hashedPassword],
+        (err) => {
+          if (err) reject(err)
+          else resolve()
+        }
+      )
+    })
+
+    return id
   }
 }
