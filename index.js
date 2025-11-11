@@ -2,6 +2,7 @@
 
 // Imports:
 import express from 'express'
+import jwt from 'jsonwebtoken'
 import cookieParser from 'cookie-parser';
 import { PORT, SECRET_JWT_KEY } from "./config.js"
 import { Register } from './controllers/register.js'
@@ -13,9 +14,10 @@ const app = express()
 
 
 // Middlewares:
-app.use(express.json())        // JSON (string que llega en la petición)  --->  Objeto JavaScript (req.body)
-app.use(cookieParser());       // necesario para leer cookies
-app.use(authMiddleware);       // todas las rutas después podrán usar req.session.user
+app.use(express.json())                          // JSON (string que llega en la petición) ---> Objeto JavaScript (req.body)
+app.use(express.urlencoded({ extended: true }))  // Para formularios HTML (application/x-www-form-urlencoded)
+app.use(cookieParser());                         // necesario para leer cookies
+app.use(authMiddleware);                         // todas las rutas después podrán usar req.session.user
 
 // Configuración de vistas EJS:
 app.set('view engine', 'ejs') // le decimos a Express que vamos a usar EJS
@@ -32,24 +34,9 @@ app.get('/', (req, res) => {
 })
 
 
-// Ruta protegida para el admin:
-app.get('/protected', (req, res) => {
-  const { user } = req.session
-
-  // 1. Si no hay usuario en la sesión, redirigimos al login con mensaje
-  if (!user) {
-    return res.render('login', {
-      error: 'Debes iniciar sesión para acceder a esta página',
-      username: '',
-      authType: ''
-    })
-  }
-
-  // 2. Si el usuario está autenticado, renderizamos la vista protegida
-  res.render('protected', {
-    user, // contiene id, username y admin
-    message: '¡Bienvenido a la sección protegida!',
-  })
+// Ruta para mostrar la página para registrarse:
+app.get('/register', (req, res) => {
+  res.render('register')
 })
 
 
@@ -80,12 +67,17 @@ app.post('/register', async (req, res) => {
 
   } catch (error) {
     // Renderizamos de nuevo la vista de registro con el error
-    res.render('register', { 
-      error: error.message,
+    res.render('register', {
       username,
       password: '' // nunca mostramos la contraseña
     })
   }
+})
+
+
+// Ruta para mostrar la página para logearse:
+app.get('/login', (req, res) => {
+  res.render('login')
 })
 
 
@@ -109,7 +101,7 @@ app.post('/login', async (req, res) => {
   
   // 4. El cliente elige su inicio de sesión:
     
-    // 🧱 Caso 1: JWT
+    // 🧱 Caso 1: JWT (SIN ESTADO)
     if (authType === 'jwt') {
       const accessToken = jwt.sign(
         { id: user.id, username: user.username, admin: user.admin },
@@ -123,15 +115,18 @@ app.post('/login', async (req, res) => {
         { expiresIn: '7d' }
       )
 
-      // Renderizamos la vista protegida con mensaje de éxito:
+
+      // ✅ NO guardamos en cookies, enviamos los tokens en la vista
       return res.render('protected', { 
         user, 
         message: 'Login con JWT exitoso',
-        authType: 'jwt'
+        authType: 'jwt',
+        accessToken,      // ⬅️ Lo enviamos a la vista
+        refreshToken      // ⬅️ Lo enviamos a la vista
       })
     }
 
-    // 🧱 Caso 2: Cookie
+    // 🧱 Caso 2: Cookie (CON ESTADO)
     else if (authType === 'cookie') {
       res.cookie('session', user.id, {
         httpOnly: true, // Solo el servidor puede leer esta cookie (más seguro).
@@ -199,15 +194,34 @@ app.post('/refresh', (req, res) => {
 });
 
 
+// Ruta protegida:
+app.get('/protected', (req, res) => {
+  const { user } = req.session
+
+  // 1. Si no hay usuario en la sesión, redirigimos al login con mensaje
+  if (!user) {
+    return res.render('login', {
+      error: 'Debes iniciar sesión para acceder a esta página',
+      username: '',
+      authType: ''
+    })
+  }
+
+  // 2. Si el usuario está autenticado, renderizamos la vista protegida
+  res.render('protected', {
+    user, // contiene id, username y admin
+    message: '¡Bienvenido de vuelta!',
+    authType: req.cookies.session ? 'cookie' : 'jwt'
+  })
+})
+
+
 // Ruta para cerrar sesión:
 app.post('/logout', (req, res) => {
   // 1. Limpiamos la cookie de sesión si existe
   res.clearCookie('session');
-
-  // 2. Para JWT, mandamos un mensaje para que el cliente elimine sus tokens
-  // (si guardás refresh token en DB, acá también podrías invalidarlo)
   
-  // 3. Renderizamos la vista de inicio con mensaje de éxito
+  // 2. Renderizamos la vista de inicio con mensaje de éxito
   res.render('index', {
     user: null, 
     message: 'Has cerrado sesión correctamente. ¡Hasta luego!'

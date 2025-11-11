@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Área Protegida</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+    }
+    .container {
+      border: 1px solid #ddd;
+      padding: 30px;
+      border-radius: 8px;
+      background: #f9f9f9;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    .success {
+      background: #e8f5e9;
+      color: #2e7d32;
+      padding: 15px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+      border-left: 4px solid #2e7d32;
+      text-align: center;
+    }
+    .user-info {
+      background: white;
+      padding: 20px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+      border: 1px solid #e0e0e0;
+    }
+    .user-info p {
+      margin: 10px 0;
+      font-size: 16px;
+    }
+    .user-info strong {
+      color: #1976d2;
+    }
+    .badge {
+      display: inline-block;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+      margin-left: 10px;
+    }
+    .badge-admin {
+      background: #ff9800;
+      color: white;
+    }
+    .badge-user {
+      background: #4caf50;
+      color: white;
+    }
+    .badge-jwt {
+      background: #9c27b0;
+      color: white;
+    }
+    .badge-cookie {
+      background: #2196f3;
+      color: white;
+    }
+    button {
+      padding: 12px 30px;
+      background: #f44336;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s;
+      display: block;
+      margin: 0 auto;
+    }
+    button:hover {
+      background: #d32f2f;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔒 Área Protegida</h1>
+
+    <% if (message) { %>
+      <div class="success"><%= message %></div>
+    <% } %>
+
+    <div class="user-info">
+      <p><strong>👤 Usuario:</strong> <%= user.username %></p>
+      <p><strong>🆔 ID:</strong> <%= user.id %></p>
+      <p>
+        <strong>🎭 Rol:</strong> 
+        <% if (user.admin) { %>
+          <span class="badge badge-admin">ADMIN</span>
+        <% } else { %>
+          <span class="badge badge-user">USUARIO</span>
+        <% } %>
+      </p>
+      <p>
+        <strong>🔐 Autenticación:</strong> 
+        <% if (authType === 'jwt') { %>
+          <span class="badge badge-jwt">JWT (Sin Estado)</span>
+        <% } else if (authType === 'cookie') { %>
+          <span class="badge badge-cookie">COOKIE (Con Estado)</span>
+        <% } %>
+      </p>
+    </div>
+
+    <button onclick="logout()">🚪 Cerrar Sesión</button>
+  </div>
+
+  <script>
+    // Si es JWT, guardar tokens en localStorage
+    <% if (authType === 'jwt' && typeof accessToken !== 'undefined') { %>
+      localStorage.setItem('accessToken', '<%= accessToken %>');
+      localStorage.setItem('refreshToken', '<%= refreshToken %>');
+      console.log('✅ Tokens JWT guardados en localStorage');
+    <% } %>
+
+    function logout() {
+      const authType = '<%= authType %>';
+      
+      if (authType === 'jwt') {
+        // Limpiar localStorage
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        console.log('🗑️ Tokens eliminados de localStorage');
+        
+        // Redirigir al inicio
+        window.location.href = '/';
+      } else {
+        // Para cookies, hacer POST al servidor
+        fetch('/logout', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }).then(() => {
+          window.location.href = '/';
+        });
+      }
+    }
+  </script>
+</body>
+</html>

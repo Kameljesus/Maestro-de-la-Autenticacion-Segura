@@ -1,28 +1,53 @@
 // auth-middleware.js
-import jwt from 'jsonwebtoken';
-import { SECRET_JWT_KEY } from './config.js';
+import jwt from 'jsonwebtoken'
+import { SECRET_JWT_KEY } from '../config.js'
+import db from '../model/db.js'
 
-export const authMiddleware = (req, res, next) => {
-  // Inicializamos la sesión en null
-  req.session = { user: null };
+export const authMiddleware = async (req, res, next) => {
+  req.session = { user: null }
 
-  // Intentamos obtener el token de la cookie 'session'
-  const token = req.cookies?.session;
-
-  // Verificamos el token si existe
+  // 1️⃣ Verificar JWT desde header Authorization
+  const authHeader = req.headers['authorization']
+  const token = authHeader && authHeader.split(' ')[1] // "Bearer TOKEN"
+  
   if (token) {
     try {
-      const data = jwt.verify(token, SECRET_JWT_KEY);
-      // Guardamos la info del usuario en la sesión para que las vistas la lean
+      const decoded = jwt.verify(token, SECRET_JWT_KEY)
       req.session.user = {
-        id: data.id,
-        username: data.username,
-        admin: data.admin || false
-      };
-    } catch (err) {
-      req.session.user = null; // token inválido o expirado
+        id: decoded.id,
+        username: decoded.username,
+        admin: decoded.admin
+      }
+      return next()
+    } catch (error) {
+      console.log('JWT inválido o expirado')
     }
   }
 
-  next(); // Pasamos a la ruta o siguiente middleware
-};
+  // 2️⃣ Verificar Cookie de sesión
+  const sessionId = req.cookies.session
+
+  if (sessionId) {
+    try {
+      // Buscamos el usuario en SQLite usando db
+      const user = await new Promise((resolve, reject) => {
+        db.get('SELECT id, username, admin FROM users WHERE id = ?', [sessionId], (err, row) => {
+          if (err) reject(err)
+          else resolve(row)
+        })
+      })
+
+      if (user) {
+        req.session.user = {
+          id: user.id,
+          username: user.username,
+          admin: user.admin
+        }
+      }
+    } catch (error) {
+      console.log('Error al buscar usuario por sesión:', error)
+    }
+  }
+
+  next()
+}

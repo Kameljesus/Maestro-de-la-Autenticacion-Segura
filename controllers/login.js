@@ -1,6 +1,6 @@
 // login.js
 
-import { db } from './model/db.js'
+import db from '../model/db.js'
 import bcrypt from 'bcrypt'
 
 export class Login {

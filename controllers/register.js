@@ -1,11 +1,12 @@
-// user_repository.js
+// register.js
 
 // Importaciones:
 
 import crypto from 'node:crypto'
 import bcrypt from 'bcrypt'
-import { db } from '../model/db.js'
+import db from '../model/db.js'
 import { SALT_ROUNDS } from '../config.js'
+import { Validation } from './validation.js'
 
 
 export class Register {

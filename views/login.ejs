@@ -2,127 +2,138 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Login - PassPort Inc.</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login</title>
   <style>
     body {
-      font-family: system-ui, sans-serif;
-      background: #10141a;
-      color: #f5f5f5;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
+      font-family: Arial, sans-serif;
+      max-width: 400px;
+      margin: 50px auto;
+      padding: 20px;
     }
-
     .container {
-      background: #1b1f29;
-      padding: 2rem;
-      border-radius: 1rem;
-      width: 350px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.3);
+      border: 1px solid #ddd;
+      padding: 30px;
+      border-radius: 8px;
+      background: #f9f9f9;
     }
-
     h1 {
       text-align: center;
-      margin-bottom: 1rem;
-      color: #00bcd4;
+      color: #333;
     }
-
-    form {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
+    .error {
+      background: #ffebee;
+      color: #c62828;
+      padding: 12px;
+      border-radius: 5px;
+      margin-bottom: 15px;
+      border-left: 4px solid #c62828;
     }
-
-    input, select, button {
-      padding: 0.7rem;
-      border-radius: 0.5rem;
-      border: none;
-      font-size: 1rem;
+    .success {
+      background: #e8f5e9;
+      color: #2e7d32;
+      padding: 12px;
+      border-radius: 5px;
+      margin-bottom: 15px;
+      border-left: 4px solid #2e7d32;
     }
-
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+      color: #555;
+    }
     input, select {
-      background: #2b3240;
-      color: #fff;
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 14px;
+      box-sizing: border-box;
     }
-
+    input:focus, select:focus {
+      outline: none;
+      border-color: #1976d2;
+    }
     button {
-      background: #00bcd4;
-      color: #000;
+      width: 100%;
+      padding: 12px;
+      background: #1976d2;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
       font-weight: bold;
       cursor: pointer;
-      transition: 0.2s;
+      transition: background 0.3s;
     }
-
     button:hover {
-      background: #0097a7;
+      background: #1565c0;
     }
-
-    .msg {
+    .back-link {
       text-align: center;
-      margin-top: 0.5rem;
-      font-size: 0.9rem;
-      color: #ff5252;
+      margin-top: 15px;
     }
-
-    .success {
-      color: #4caf50;
-    }
-
-    .footer {
-      text-align: center;
-      margin-top: 1rem;
-      font-size: 0.85rem;
-      color: #bbb;
-    }
-
-    .footer a {
-      color: #00bcd4;
+    .back-link a {
+      color: #1976d2;
       text-decoration: none;
+    }
+    .back-link a:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Iniciar Sesión</h1>
+    <h1>🔑 Iniciar Sesión</h1>
 
     <% if (typeof error !== 'undefined' && error) { %>
-      <p class="msg"><%= error %></p>
+      <div class="error"><%= error %></div>
     <% } %>
 
-    <% if (typeof message !== 'undefined' && message) { %>
-      <p class="msg success"><%= message %></p>
+    <% if (typeof success !== 'undefined' && success) { %>
+      <div class="success"><%= success %></div>
     <% } %>
 
     <form action="/login" method="POST">
-      <input 
-        type="text" 
-        name="username" 
-        placeholder="Usuario" 
-        value="<%= typeof username !== 'undefined' ? username : '' %>"
-        required
-      >
+      <div class="form-group">
+        <label for="username">Usuario:</label>
+        <input 
+          type="text" 
+          id="username" 
+          name="username" 
+          value="<%= typeof username !== 'undefined' ? username : '' %>"
+          required
+        >
+      </div>
 
-      <input 
-        type="password" 
-        name="password" 
-        placeholder="Contraseña" 
-        required
-      >
+      <div class="form-group">
+        <label for="password">Contraseña:</label>
+        <input 
+          type="password" 
+          id="password" 
+          name="password" 
+          required
+        >
+      </div>
 
-      <select name="authType" required>
-        <option value="">Seleccionar tipo de autenticación</option>
-        <option value="jwt" <%= authType === 'jwt' ? 'selected' : '' %>>JWT</option>
-        <option value="cookie" <%= authType === 'cookie' ? 'selected' : '' %>>Cookie</option>
-      </select>
+      <div class="form-group">
+        <label for="authType">Tipo de Autenticación:</label>
+        <select id="authType" name="authType" required>
+          <option value="">-- Selecciona --</option>
+          <option value="jwt" <%= typeof authType !== 'undefined' && authType === 'jwt' ? 'selected' : '' %>>JWT (Token)</option>
+          <option value="cookie" <%= typeof authType !== 'undefined' && authType === 'cookie' ? 'selected' : '' %>>Cookie (Sesión)</option>
+        </select>
+      </div>
 
-      <button type="submit">Entrar</button>
+      <button type="submit">Ingresar</button>
     </form>
 
-    <div class="footer">
-      ¿No tienes cuenta? <a href="/register">Regístrate</a>
+    <div class="back-link">
+      <a href="/">← Volver al inicio</a>
     </div>
   </div>
 </body>

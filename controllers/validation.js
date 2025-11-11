@@ -1,4 +1,4 @@
-class Validation {
+export class Validation {
   static username (username) {
     if (typeof username !== 'string') {
       throw new Error('username must be a string')}
