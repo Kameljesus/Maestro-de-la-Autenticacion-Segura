@@ -1,8 +1,8 @@
-// registerRoutes.js
+// routes/registerRoutes.js
 
 // Imports:
 import express from 'express'
-import { Register } from './controllers/register.js'
+import { Register } from '../controllers/register.js'
 
 // Creamos router:
 const router = express.Router()
@@ -10,7 +10,11 @@ const router = express.Router()
 
 // Ruta para mostrar la página de registro:
 router.get('/', (req, res) => {
-  res.render('register')
+  res.render('register', {
+    error: null,
+    username: '',
+    password: ''
+  })
 })
 
 
@@ -47,3 +51,6 @@ router.post('/', async (req, res) => {
     })
   }
 })
+
+// Exportamos el router:
+export default router

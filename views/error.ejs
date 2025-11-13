@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Error</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+      background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+      min-height: 100vh;
+    }
+    .container {
+      background: white;
+      border-radius: 15px;
+      padding: 40px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      text-align: center;
+    }
+    .error-icon {
+      font-size: 80px;
+      margin-bottom: 20px;
+    }
+    h1 {
+      color: #dc3545;
+      margin-bottom: 20px;
+    }
+    .detail {
+      color: #666;
+      font-size: 16px;
+      margin-bottom: 30px;
+      line-height: 1.6;
+    }
+    .btn {
+      display: inline-block;
+      padding: 12px 30px;
+      background: #667eea;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: bold;
+      transition: all 0.3s;
+    }
+    .btn:hover {
+      background: #5568d3;
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="error-icon">⚠️</div>
+    <h1><%= message %></h1>
+    <p class="detail"><%= detail %></p>
+    <a href="/" class="btn">← Volver al Inicio</a>
+  </div>
+</body>
+</html>

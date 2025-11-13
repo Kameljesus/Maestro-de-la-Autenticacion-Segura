@@ -1,4 +1,5 @@
-// auth-middleware.js
+// middlewares/auth-middleware.js
+
 import jwt from 'jsonwebtoken'
 import { SECRET_JWT_KEY } from '../config.js'
 import db from '../model/db.js'

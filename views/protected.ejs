@@ -7,7 +7,7 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      max-width: 600px;
+      max-width: 700px;
       margin: 50px auto;
       padding: 20px;
     }
@@ -68,21 +68,66 @@
       background: #2196f3;
       color: white;
     }
-    button {
-      padding: 12px 30px;
-      background: #f44336;
-      color: white;
+    
+    /* ⬅️ NUEVO: Estilos para los botones */
+    .buttons-container {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-top: 30px;
+    }
+    .btn {
+      padding: 15px 30px;
       border: none;
-      border-radius: 5px;
+      border-radius: 8px;
       font-size: 16px;
       font-weight: bold;
       cursor: pointer;
-      transition: background 0.3s;
+      transition: all 0.3s;
+      text-align: center;
+      text-decoration: none;
       display: block;
-      margin: 0 auto;
     }
-    button:hover {
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .btn-logout {
+      background: #f44336;
+      color: white;
+    }
+    .btn-logout:hover {
       background: #d32f2f;
+    }
+    .btn-user {
+      background: #9c27b0;
+      color: white;
+    }
+    .btn-user:hover {
+      background: #7b1fa2;
+    }
+    .btn-admin {
+      background: #ff9800;
+      color: white;
+    }
+    .btn-admin:hover {
+      background: #f57c00;
+    }
+    .btn-disabled {
+      background: #ccc;
+      color: #666;
+      cursor: not-allowed;
+    }
+    .btn-disabled:hover {
+      transform: none;
+      box-shadow: none;
+    }
+    .note {
+      text-align: center;
+      color: #999;
+      font-size: 13px;
+      font-style: italic;
+      margin-top: 5px;
     }
   </style>
 </head>
@@ -115,17 +160,51 @@
       </p>
     </div>
 
-    <button onclick="logout()">🚪 Cerrar Sesión</button>
+    <!-- ⬅️ NUEVOS BOTONES -->
+    <div class="buttons-container">
+      
+      <!-- Botón 1: Cerrar Sesión -->
+      <button class="btn btn-logout" onclick="logout()">
+        🚪 Cerrar Sesión
+      </button>
+
+      <!-- Botón 2: Ver Vista de Usuario (solo JWT) -->
+      <% if (authType === 'jwt') { %>
+        <button class="btn btn-user" onclick="goToUserView()">
+          👤 Ver Vista de Usuario (requiere JWT)
+        </button>
+      <% } else { %>
+        <button class="btn btn-disabled" disabled title="Esta función solo está disponible con JWT">
+          👤 Ver Vista de Usuario (solo para JWT)
+        </button>
+        <p class="note">💡 Iniciá sesión con JWT para acceder a esta función</p>
+      <% } %>
+
+      <!-- Botón 3: Ventana del Admin (solo para admins) -->
+      <% if (user.admin) { %>
+        <a href="/admin" class="btn btn-admin">
+          👑 Ventana del Admin
+        </a>
+      <% } else { %>
+        <button class="btn btn-disabled" disabled title="Solo administradores">
+          👑 Ventana del Admin (solo admins)
+        </button>
+        <p class="note">💡 Solo administradores pueden acceder</p>
+      <% } %>
+    </div>
   </div>
 
   <script>
     // Si es JWT, guardar tokens en localStorage
     <% if (authType === 'jwt' && typeof accessToken !== 'undefined') { %>
       localStorage.setItem('accessToken', '<%= accessToken %>');
-      localStorage.setItem('refreshToken', '<%= refreshToken %>');
+      <% if (typeof refreshToken !== 'undefined') { %>
+        localStorage.setItem('refreshToken', '<%= refreshToken %>');
+      <% } %>
       console.log('✅ Tokens JWT guardados en localStorage');
     <% } %>
 
+    // Función para cerrar sesión
     function logout() {
       const authType = '<%= authType %>';
       
@@ -148,6 +227,42 @@
           window.location.href = '/';
         });
       }
+    }
+
+    // ⬅️ NUEVA FUNCIÓN: Ir a la vista de usuario con JWT
+    function goToUserView() {
+      const token = localStorage.getItem('accessToken');
+      
+      if (!token) {
+        alert('❌ No se encontró el token JWT. Por favor, iniciá sesión nuevamente.');
+        window.location.href = '/login';
+        return;
+      }
+
+      // Hacer la petición con el token en el header Authorization
+      fetch('/user', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      .then(response => {
+        if (response.ok) {
+          return response.text();
+        } else {
+          throw new Error('Token inválido o expirado');
+        }
+      })
+      .then(html => {
+        // Reemplazar el contenido de la página con la respuesta
+        document.open();
+        document.write(html);
+        document.close();
+      })
+      .catch(error => {
+        alert('❌ ' + error.message);
+        window.location.href = '/login';
+      });
     }
   </script>
 </body>

@@ -1,4 +1,4 @@
-// protectedRoutes.js
+// routes/protectedRoutes.js
 
 // Imports:
 import express from 'express'
@@ -14,15 +14,26 @@ router.get('/', (req, res) => {
   if (!user) {
     return res.render('login', {
       error: 'Debes iniciar sesión para acceder a esta página',
+      success: null,
       username: '',
       authType: ''
     })
   }
 
-  // 2. Si el usuario está autenticado, renderizamos la vista protegida
+  // 2. Detectar tokens JWT desde query params (primera vez después de login)
+  const accessToken = req.query.accessToken
+  const refreshToken = req.query.refreshToken
+  const authType = req.query.authType || (req.cookies.session ? 'cookie' : 'jwt')
+
+  // 3. Si el usuario está autenticado, renderizamos la vista protegida
   res.render('protected', {
     user, // contiene id, username y admin
     message: '¡Bienvenido de vuelta!',
-    authType: req.cookies.session ? 'cookie' : 'jwt'
+    authType,
+    accessToken: accessToken || undefined,
+    refreshToken: refreshToken || undefined
   })
 })
+
+// Exportamos el router:
+export default router

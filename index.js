@@ -1,11 +1,20 @@
 // index.js
 
-// Imports:
+// Imports Libraries:
 import express from 'express'
 import cookieParser from 'cookie-parser';
 import { PORT } from "./config.js"
 import { authMiddleware } from './middlewares/auth-middleware.js';
 import path from 'path' // necesario para manejar rutas de carpetas
+
+// Import Routes:
+import registerRoutes from './routes/registerRoutes.js'
+import loginRoutes from './routes/loginRoutes.js'
+import protectedRoutes from './routes/protectedRoutes.js'
+import tokenRoutes from './routes/tokenRoutes.js'
+import logoutRoutes from './routes/logoutRoutes.js'
+import userRoutes from './routes/userRoutes.js'
+import adminRoutes from './routes/adminRoutes.js'
 
 const app = express()
 
@@ -26,6 +35,8 @@ app.use('/login', loginRoutes)
 app.use('/protected', protectedRoutes)
 app.use('/refresh', tokenRoutes)
 app.use('/logout', logoutRoutes)
+app.use('/user', userRoutes)       
+app.use('/admin', adminRoutes)
 
 
 // Ruta que le va a mostrar al cliente el menú para registrarse o logearse 

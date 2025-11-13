@@ -1,4 +1,4 @@
-// register.js
+// controllers/register.js
 
 // Importaciones:
 

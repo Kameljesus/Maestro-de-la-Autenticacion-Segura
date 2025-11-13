@@ -1,8 +1,10 @@
-// loginRoutes.js
+// routes/loginRoutes.js
 
 // Imports
 import express from 'express'
-import { Login } from "./controllers/login.js"
+import jwt from 'jsonwebtoken'
+import { Login } from "../controllers/login.js"
+import { SECRET_JWT_KEY } from '../config.js'
 
 // Creamos router:
 const router = express.Router()
@@ -10,7 +12,12 @@ const router = express.Router()
 
 // Ruta para mostrar la página para logearse:
 router.get('/', (req, res) => {
-  res.render('login')
+  res.render('login', {
+    error: null,
+    success: null,
+    username: '',
+    authType: ''
+  })
 })
 
 
@@ -23,6 +30,7 @@ router.post('/', async (req, res) => {
   if (!username || !password || !authType) {
     return res.render('login', {
       error: 'Todos los campos son obligatorios', 
+      success: null,
       username: '', 
       authType: ''
     })
@@ -49,13 +57,17 @@ router.post('/', async (req, res) => {
       )
 
 
-      // ✅ NO guardamos en cookies, enviamos los tokens en la vista
+      // ✅ RENDERIZAMOS directamente la vista protected (NO redirigimos)
       return res.render('protected', { 
-        user, 
+        user: {
+          id: user.id,
+          username: user.username,
+          admin: user.admin
+        },
         message: 'Login con JWT exitoso',
         authType: 'jwt',
-        accessToken,      // ⬅️ Lo enviamos a la vista
-        refreshToken      // ⬅️ Lo enviamos a la vista
+        accessToken,      // Los tokens se envían a la vista
+        refreshToken
       })
     }
 
@@ -68,12 +80,8 @@ router.post('/', async (req, res) => {
         maxAge: 1000 * 60 * 60 // Dura 1 hora antes de expirar.
       })
 
-      // Renderizamos la vista protegida con mensaje de éxito
-      return res.render('protected', { 
-        user, 
-        message: 'Login con Cookie exitoso',
-        authType: 'cookie'
-      })
+      // ⬅️ REDIRIGIR a /protected en vez de renderizar
+      return res.redirect('/protected')
     }
 
     // Si no especifica o es otro caso que no existe:
@@ -93,3 +101,6 @@ router.post('/', async (req, res) => {
     })
   }
 })
+
+// Exportamos el router:
+export default router

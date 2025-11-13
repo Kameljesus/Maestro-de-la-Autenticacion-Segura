@@ -1,3 +1,5 @@
+// routes/logoutRoutes.js
+
 // Imports:
 import express from 'express'
 
@@ -15,3 +17,6 @@ router.post('/', (req, res) => {
     message: 'Has cerrado sesión correctamente. ¡Hasta luego!'
   })
 })
+
+// Exportamos el router:
+export default router

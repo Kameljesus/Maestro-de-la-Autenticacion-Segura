@@ -1,11 +1,9 @@
-// login.js
+// controllers/login.js
 
 // Imports:
 import db from '../model/db.js'
 import bcrypt from 'bcrypt'
 
-// Creamos router:
-const router = express.Router()
 
 export class Login {
   static async authenticate({ username, password }) {

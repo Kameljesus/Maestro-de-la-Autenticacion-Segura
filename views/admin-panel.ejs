@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel de Administrador</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 900px;
+      margin: 50px auto;
+      padding: 20px;
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      min-height: 100vh;
+    }
+    .container {
+      background: white;
+      border-radius: 15px;
+      padding: 40px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    }
+    h1 {
+      color: #f5576c;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    .subtitle {
+      text-align: center;
+      color: #666;
+      margin-bottom: 30px;
+    }
+    .alert {
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-weight: bold;
+    }
+    .alert-success {
+      background: #d4edda;
+      color: #155724;
+      border-left: 4px solid #28a745;
+    }
+    .alert-error {
+      background: #f8d7da;
+      color: #721c24;
+      border-left: 4px solid #dc3545;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 30px;
+    }
+    thead {
+      background: #f5576c;
+      color: white;
+    }
+    th, td {
+      padding: 15px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    tbody tr:hover {
+      background: #f8f9fa;
+    }
+    .badge {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+    .badge-admin {
+      background: #ffc107;
+      color: #000;
+    }
+    .badge-user {
+      background: #28a745;
+      color: white;
+    }
+    .btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-right: 5px;
+    }
+    .btn-delete {
+      background: #dc3545;
+      color: white;
+    }
+    .btn-delete:hover {
+      background: #c82333;
+    }
+    .btn-promote {
+      background: #ffc107;
+      color: #000;
+    }
+    .btn-promote:hover {
+      background: #e0a800;
+    }
+    .btn-back {
+      background: #667eea;
+      color: white;
+      text-decoration: none;
+      display: inline-block;
+      padding: 12px 24px;
+    }
+    .btn-back:hover {
+      background: #5568d3;
+    }
+    .actions-container {
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>👑 Panel de Administrador</h1>
+    <p class="subtitle">Bienvenido, <%= admin.username %></p>
+
+    <% if (message) { %>
+      <div class="alert alert-success">✅ <%= message %></div>
+    <% } %>
+
+    <% if (error) { %>
+      <div class="alert alert-error">❌ <%= error %></div>
+    <% } %>
+
+    <h2>📋 Lista de Usuarios</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Usuario</th>
+          <th>ID</th>
+          <th>Rol</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% users.forEach(user => { %>
+          <tr>
+            <td><%= user.username %></td>
+            <td><%= user.id %></td>
+            <td>
+              <% if (user.admin) { %>
+                <span class="badge badge-admin">ADMIN</span>
+              <% } else { %>
+                <span class="badge badge-user">
+                <span class="badge badge-user">USUARIO</span>
+              <% } %>
+            </td>
+            <td>
+              <% if (user.id !== admin.id) { %>
+                <form action="/admin/delete/<%= user.id %>" method="POST" style="display: inline;" onsubmit="return confirm('¿Estás seguro de eliminar a <%= user.username %>?')">
+                  <button type="submit" class="btn btn-delete">🗑️ Eliminar</button>
+                </form>
+                
+                <% if (!user.admin) { %>
+                  <form action="/admin/make-admin/<%= user.id %>" method="POST" style="display: inline;" onsubmit="return confirm('¿Promover a <%= user.username %> a admin?')">
+                    <button type="submit" class="btn btn-promote">⭐ Hacer Admin</button>
+                  </form>
+                <% } %>
+              <% } else { %>
+                <span style="color: #999;">Eres tú</span>
+              <% } %>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+
+    <div class="actions-container">
+      <a href="/protected" class="btn btn-back">← Volver a Protected</a>
+    </div>
+  </div>
+</body>
+</html>

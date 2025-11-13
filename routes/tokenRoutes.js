@@ -1,12 +1,13 @@
-// tokenRoutes.js
+// routes/tokenRoutes.js
 
 // Imports:
 import express from 'express'
 import jwt from 'jsonwebtoken'
-import { SECRET_JWT_KEY } from "./config.js"
+import { SECRET_JWT_KEY } from "../config.js"
 
 // Creamos router:
 const router = express.Router()
+
 
 // Ruta para refrescar el token:
 router.post('/', (req, res) => {
@@ -38,3 +39,6 @@ router.post('/', (req, res) => {
     return res.status(401).send('Invalid or expired refresh token');
   }
 })
+
+// Exportamos el router:
+export default router
