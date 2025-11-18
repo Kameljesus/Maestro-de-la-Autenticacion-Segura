@@ -5,6 +5,8 @@ import express from 'express'
 import jwt from 'jsonwebtoken'
 import { Login } from "../controllers/login.js"
 import { SECRET_JWT_KEY } from '../config.js'
+import { sanitizeInput, handleValidationErrors } from '../middlewares/sanitize-middleware.js'
+
 
 // Creamos router:
 const router = express.Router()
@@ -22,7 +24,7 @@ router.get('/', (req, res) => {
 
 
 // Ruta para iniciar sesión:
-router.post('/', async (req, res) => {
+router.post('/', sanitizeInput, handleValidationErrors, async (req, res) => {
   // 1. Recibe el username y el password que escribe el cliente:
   const { username, password, authType } = req.body;
 
