@@ -154,11 +154,17 @@
             <td>
               <% if (user.id !== admin.id) { %>
                 <form action="/admin/delete/<%= user.id %>" method="POST" style="display: inline;" onsubmit="return confirm('¿Estás seguro de eliminar a <%= user.username %>?')">
+                  <!-- ⬅️ NUEVO: Token CSRF -->
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
                   <button type="submit" class="btn btn-delete">🗑️ Eliminar</button>
                 </form>
                 
                 <% if (!user.admin) { %>
                   <form action="/admin/make-admin/<%= user.id %>" method="POST" style="display: inline;" onsubmit="return confirm('¿Promover a <%= user.username %> a admin?')">
+                    <!-- ⬅️ NUEVO: Token CSRF -->
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    
                     <button type="submit" class="btn btn-promote">⭐ Hacer Admin</button>
                   </form>
                 <% } %>

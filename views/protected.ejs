@@ -209,20 +209,18 @@
       const authType = '<%= authType %>';
       
       if (authType === 'jwt') {
-        // Limpiar localStorage
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
         console.log('🗑️ Tokens eliminados de localStorage');
-        
-        // Redirigir al inicio
         window.location.href = '/';
       } else {
-        // Para cookies, hacer POST al servidor
+        // ⬅️ ACTUALIZADO: Incluir token CSRF
         fetch('/logout', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
-          }
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: '_csrf=<%= csrfToken %>'
         }).then(() => {
           window.location.href = '/';
         });

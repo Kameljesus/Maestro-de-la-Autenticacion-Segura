@@ -3,6 +3,7 @@
 // Imports:
 import express from 'express'
 import { Register } from '../controllers/register.js'
+import { sanitizeInput, handleValidationErrors } from '../middlewares/sanitize-middleware.js'
 
 // Creamos router:
 const router = express.Router()
@@ -19,7 +20,7 @@ router.get('/', (req, res) => {
 
 
 // Ruta que sirve para que el cliente se registre.
-router.post('/', async (req, res) => {
+router.post('/', sanitizeInput, handleValidationErrors, async (req, res) => {
   // 1. Recibe el username y el password que elige el cliente:
   const { username, password } = req.body
 
