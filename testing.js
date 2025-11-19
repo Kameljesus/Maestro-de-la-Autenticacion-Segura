@@ -8,7 +8,7 @@ import csrf from 'csurf'
 import { PORT } from "./config.js"
 import { authMiddleware } from './middlewares/auth-middleware.js'
 import { loginLimiter, registerLimiter } from './middlewares/rate-limit.js'
-import path from 'path' // necesario para manejar rutas de carpetas
+import path from 'path'
 
 // Import Routes:
 import registerRoutes from './routes/registerRoutes.js'
@@ -22,31 +22,31 @@ import adminRoutes from './routes/adminRoutes.js'
 const app = express()
 
 // Middlewares:
-app.use(express.json())                          // JSON (string que llega en la petición) ---> Objeto JavaScript (req.body)
-app.use(express.urlencoded({ extended: true }))  // Para formularios HTML (application/x-www-form-urlencoded)
-app.use(cookieParser())                          // necesario para leer cookies
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
+app.use(cookieParser())
 
-// ⬅️ NUEVO: Configuración de CSRF
+// Configurar CSRF
 const csrfProtection = csrf({ cookie: true })
 
-app.use(authMiddleware)                          // todas las rutas después podrán usar req.session.user
+app.use(authMiddleware)
 
-// ⬅️ NUEVO: Configurar headers de seguridad
+// Configurar headers de seguridad
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'"], // Necesario para EJS
+      scriptSrc: ["'self'", "'unsafe-inline'"],
       styleSrc: ["'self'", "'unsafe-inline'"],
     },
   },
 }))
 
 // Configuración de vistas EJS:
-app.set('view engine', 'ejs') // le decimos a Express que vamos a usar EJS
-app.set('views', path.resolve('./views')) // carpeta donde van tus archivos .ejs
+app.set('view engine', 'ejs')
+app.set('views', path.resolve('./views'))
 
-// Middleware para pasar el token CSRF a todas las vistas
+// ⬅️ SOLUCIÓN: Aplicar csrfProtection a TODAS las rutas que renderizan vistas
 // Esto genera el token antes de llegar a las rutas
 app.use((req, res, next) => {
   // Solo aplicar CSRF a rutas que necesitan renderizar formularios
@@ -73,7 +73,7 @@ app.use((req, res, next) => {
   }
 })
 
-// Rutas:
+// Rutas (ahora SIN csrfProtection porque ya se aplicó arriba)
 app.use('/register', registerLimiter, registerRoutes)
 app.use('/login', loginLimiter, loginRoutes)
 app.use('/protected', protectedRoutes)
@@ -82,10 +82,8 @@ app.use('/logout', logoutRoutes)
 app.use('/user', userRoutes)      // No necesita CSRF (usa JWT)
 app.use('/admin', adminRoutes)
 
-
-// Ruta que le va a mostrar al cliente el menú para registrarse o logearse 
+// Ruta principal
 app.get('/', (req, res) => {
-  // Por ahora no hay usuario logueado, así que user = null
   res.render('index', { 
     user: null, 
     message: 'Bienvenido! Por favor elige una opción:' 
